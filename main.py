@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 import traceback
 from pymongo import MongoClient
+import pymongo  
 
 class FreshDesk:
     def __init__(self, api_key):
