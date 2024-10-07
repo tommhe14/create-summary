@@ -121,17 +121,23 @@ def main():
 
                 if comments:
                     summary = freshdesk.ask_google_ai(comments)
+                    st.session_state.summary = summary  # Store summary in session state
                     st.markdown(f"### Generated Summary:\n{summary}", unsafe_allow_html=True)
-
-                    if st.button("Add Summary as Note", key="add_summary_note_button"):
-                        response = freshdesk.add_note_to_ticket(ticket_id, summary)
-                        st.success(response)  # Show success message after attempting to add the note
                 else:
                     st.warning("No comments found for this ticket.")
             else:
                 st.warning("Please enter a valid ticket ID.")
 
-    # Removed logout button
+        # Button to add the summary as a note
+        if 'summary' in st.session_state:  # Check if summary exists in session state
+            if st.button("Add Summary as Note", key="add_summary_note_button"):
+                freshdesk = FreshDesk(st.session_state.api_key)
+                response = freshdesk.add_note_to_ticket(ticket_id, st.session_state.summary)
+                st.success(response)  
+                else:
+                    st.warning("No comments found for this ticket.")
+            else:
+                st.warning("Please enter a valid ticket ID.")
 
 if __name__ == "__main__":
     main()
