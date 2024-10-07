@@ -3,8 +3,10 @@ from freshdesk.api import API
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 import traceback
-from pymongo import MongoClient
-import pymongo  
+import json
+import os
+
+JSON_FILE_PATH = 'api_keys.json'
 
 class FreshDesk:
     def __init__(self, api_key):
@@ -58,63 +60,52 @@ class FreshDesk:
             print(f"API Key verification failed: {e}")
             return False
 
+def read_api_keys():
+    """Read the API keys from the JSON file."""
+    if os.path.exists(JSON_FILE_PATH):
+        with open(JSON_FILE_PATH, 'r') as file:
+            return json.load(file)
+    return {}
 
-def get_or_create_freshdesk_api_key(email):
-    try:
-        client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority&connectTimeoutMS=30000&socketTimeoutMS=30000')
-        db = client['freshdesk_db']  
-        collection = db['users']  
-
-        user = collection.find_one({'email': email.lower()})
-        if user:
-            return user['api_key']
-        else:
-            return None  # Return None if no API key found
-    except pymongo.errors.ServerSelectionTimeoutError as e:
-        print(f"Failed to connect to MongoDB: {e}")
-        return None
-
+def write_api_keys(api_keys):
+    """Write the API keys to the JSON file."""
+    with open(JSON_FILE_PATH, 'w') as file:
+        json.dump(api_keys, file)
 
 def main():
     st.title("Freshdesk Ticket Summary Generator")
 
-    # Initialize session state for steps if it doesn't exist
+    api_keys = read_api_keys()
+
     if 'step' not in st.session_state:
         st.session_state.step = "email_input"
 
-    # Step 1: Input email address
     if st.session_state.step == "email_input":
         email = st.text_input("Enter your email address:", key="email_input_field")  # Unique key
         if st.button("Next", key="next_email_button"):
             if email:
-                api_key = get_or_create_freshdesk_api_key(email)
-                if api_key:
+                email_lower = email.lower()
+                if email_lower in api_keys:
+                    st.session_state.api_key = api_keys[email_lower]  # Load from JSON
                     st.session_state.email = email
-                    st.session_state.api_key = api_key
                     st.session_state.step = "ticket_id"  # Move to the next step
                 else:
-                    st.warning("No API key found for this email. Please provide your Freshdesk API key:")
                     st.session_state.email = email  # Store email in session state for later use
-                    st.session_state.step = "api_key"
+                    st.session_state.step = "api_key"  # Move to API key input step
             else:
                 st.warning("Please enter your email address.")
 
-    # Step 2: Input API key (if email doesn't exist)
+    # Step 2: Input API key
     elif st.session_state.step == "api_key":
         api_key = st.text_input("Enter your Freshdesk API key:", type="password", key="api_key_input_field")  # Unique key
         if st.button("Submit API Key", key="submit_api_key_button"):
             if api_key:
                 freshdesk = FreshDesk(api_key)
                 if freshdesk.test_api_key():
-                    st.session_state.api_key = api_key
+                    st.session_state.api_key = api_key  # Store API key in session state
+                    api_keys[st.session_state.email.lower()] = api_key  # Save to JSON
+                    write_api_keys(api_keys)  # Write updated API keys to JSON
                     st.session_state.step = "ticket_id"  # Move to the next step
-
-                    # Optionally store the API key in the database for future use
-                    client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority&connectTimeoutMS=30000&socketTimeoutMS=30000')
-                    db = client['freshdesk_db']  
-                    collection = db['users']  
-                    if not collection.find_one({'email': st.session_state.email.lower()}):
-                        collection.insert_one({'email': st.session_state.email.lower(), 'api_key': api_key})
                 else:
                     st.error("Invalid API key. Please try again.")
             else:
@@ -139,6 +130,10 @@ def main():
                     st.warning("No comments found for this ticket.")
             else:
                 st.warning("Please enter a valid ticket ID.")
+
+    if st.button("Logout"):
+        st.session_state.clear()
+        st.success("You have been logged out.")
 
 if __name__ == "__main__":
     main()
