@@ -133,11 +133,7 @@ def main():
             if st.button("Add Summary as Note", key="add_summary_note_button"):
                 freshdesk = FreshDesk(st.session_state.api_key)
                 response = freshdesk.add_note_to_ticket(ticket_id, st.session_state.summary)
-                st.success(response)  
-                else:
-                    st.warning("No comments found for this ticket.")
-            else:
-                st.warning("Please enter a valid ticket ID.")
+                st.success(response)  # Show success message after attempting to add the note
 
 if __name__ == "__main__":
     main()
