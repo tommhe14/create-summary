@@ -78,31 +78,35 @@ def get_or_create_freshdesk_api_key(email):
 def main():
     st.title("Freshdesk Ticket Summary Generator")
 
-    if 'email' not in st.session_state:
-        email = st.text_input("Enter your email address:")
+    if 'step' not in st.session_state:
+        st.session_state.step = "email_input"
+
+    if st.session_state.step == "email_input":
+        email = st.text_input("Enter your email address:", key="email_input")  # Use a unique key
         if st.button("Next"):
             if email:
                 api_key = get_or_create_freshdesk_api_key(email)
                 if api_key:
                     st.session_state.email = email
                     st.session_state.api_key = api_key
-                    st.session_state.step = "ticket_id" 
+                    st.session_state.step = "ticket_id"  # Move to the next step
                 else:
                     st.warning("No API key found for this email. Please provide your Freshdesk API key:")
-                    st.session_state.email = email  
+                    st.session_state.email = email  # Store email in session state for later use
                     st.session_state.step = "api_key"
             else:
                 st.warning("Please enter your email address.")
 
     elif st.session_state.step == "api_key":
-        api_key = st.text_input("Enter your Freshdesk API key:", type="password")
+        api_key = st.text_input("Enter your Freshdesk API key:", type="password", key="api_key_input")  # Unique key
         if st.button("Submit API Key"):
             if api_key:
                 freshdesk = FreshDesk(api_key)
                 if freshdesk.test_api_key():
                     st.session_state.api_key = api_key
-                    st.session_state.step = "ticket_id"  
+                    st.session_state.step = "ticket_id"  # Move to the next step
 
+                    # Optionally store the API key in the database for future use
                     client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority')
                     db = client['freshdesk_db']  
                     collection = db['users']  
@@ -131,6 +135,10 @@ def main():
                     st.warning("No comments found for this ticket.")
             else:
                 st.warning("Please enter a valid ticket ID.")
+
+if __name__ == "__main__":
+    main()
+
 
 if __name__ == "__main__":
     main()
