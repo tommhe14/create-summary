@@ -1,6 +1,5 @@
 streamlit
-freshdesk.api
-bs4
-google.generativeai
-traceback
+freshdesk-api
+beautifulsoup4
+google-generativeai
 pymongo
