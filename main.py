@@ -78,12 +78,14 @@ def get_or_create_freshdesk_api_key(email):
 def main():
     st.title("Freshdesk Ticket Summary Generator")
 
+    # Initialize session state for steps if it doesn't exist
     if 'step' not in st.session_state:
         st.session_state.step = "email_input"
 
+    # Step 1: Input email address
     if st.session_state.step == "email_input":
-        email = st.text_input("Enter your email address:", key="email_input")  # Use a unique key
-        if st.button("Next"):
+        email = st.text_input("Enter your email address:", key="email_input_field")  # Unique key
+        if st.button("Next", key="next_email_button"):
             if email:
                 api_key = get_or_create_freshdesk_api_key(email)
                 if api_key:
@@ -97,9 +99,10 @@ def main():
             else:
                 st.warning("Please enter your email address.")
 
+    # Step 2: Input API key (if email doesn't exist)
     elif st.session_state.step == "api_key":
-        api_key = st.text_input("Enter your Freshdesk API key:", type="password", key="api_key_input")  # Unique key
-        if st.button("Submit API Key"):
+        api_key = st.text_input("Enter your Freshdesk API key:", type="password", key="api_key_input_field")  # Unique key
+        if st.button("Submit API Key", key="submit_api_key_button"):
             if api_key:
                 freshdesk = FreshDesk(api_key)
                 if freshdesk.test_api_key():
@@ -117,9 +120,10 @@ def main():
             else:
                 st.warning("Please enter your Freshdesk API key.")
 
+    # Step 3: Input ticket ID
     elif st.session_state.step == "ticket_id":
-        ticket_id = st.number_input("Enter the ticket ID:", min_value=1)
-        if st.button("Generate Summary"):
+        ticket_id = st.number_input("Enter the ticket ID:", min_value=1, key="ticket_id_input")  # Unique key
+        if st.button("Generate Summary", key="generate_summary_button"):
             if ticket_id:
                 freshdesk = FreshDesk(st.session_state.api_key)
                 comments = freshdesk.get_ticket_comments(ticket_id)
@@ -128,21 +132,13 @@ def main():
                     summary = freshdesk.ask_google_ai(comments)
                     st.markdown(f"### Generated Summary:\n{summary}", unsafe_allow_html=True)
 
-                    if st.button("Add Summary as Note"):
+                    if st.button("Add Summary as Note", key="add_summary_note_button"):
                         response = freshdesk.add_note_to_ticket(ticket_id, summary)
                         st.success(response)
                 else:
                     st.warning("No comments found for this ticket.")
             else:
                 st.warning("Please enter a valid ticket ID.")
-
-if __name__ == "__main__":
-    main()
-
-
-if __name__ == "__main__":
-    main()
-
 
 if __name__ == "__main__":
     main()
