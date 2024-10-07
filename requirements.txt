@@ -1,0 +1,6 @@
+streamlit
+freshdesk.api
+bs4
+google.generativeai
+traceback
+pymongo
