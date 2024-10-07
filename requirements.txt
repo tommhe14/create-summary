@@ -1,5 +1,5 @@
 streamlit
-freshdesk
+freshdesk-api
 beautifulsoup4
 google-generativeai
 pymongo
