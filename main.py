@@ -61,7 +61,7 @@ class FreshDesk:
 
 def get_or_create_freshdesk_api_key(email):
     try:
-        client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority')
+        client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority&connectTimeoutMS=30000&socketTimeoutMS=30000')
         db = client['freshdesk_db']  
         collection = db['users']  
 
@@ -110,7 +110,7 @@ def main():
                     st.session_state.step = "ticket_id"  # Move to the next step
 
                     # Optionally store the API key in the database for future use
-                    client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority')
+                    client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority&connectTimeoutMS=30000&socketTimeoutMS=30000')
                     db = client['freshdesk_db']  
                     collection = db['users']  
                     if not collection.find_one({'email': st.session_state.email.lower()}):
