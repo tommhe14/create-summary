@@ -59,15 +59,20 @@ class FreshDesk:
 
 
 def get_or_create_freshdesk_api_key(email, api_key):
-    client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority&appName=freshdesk')
-    db = client['freshdesk_db']  
-    collection = db['users']  
+    try:
+        client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority&appName=freshdesk')
+        db = client['freshdesk_db']  
+        collection = db['users']  
 
-    user = collection.find_one({'email': email.lower()})
-    if user:
-        return user['api_key']
-    else:
-        return api_key
+        user = collection.find_one({'email': email.lower()})
+        if user:
+            return user['api_key']
+        else:
+            return api_key
+    except pymongo.errors.ServerSelectionTimeoutError as e:
+        print(f"Failed to connect to MongoDB: {e}")
+        return None
+
 
 
 def main():
