@@ -60,7 +60,7 @@ class FreshDesk:
 
 def get_or_create_freshdesk_api_key(email, api_key):
     try:
-        client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority&appName=freshdesk')
+        client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority')
         db = client['freshdesk_db']  
         collection = db['users']  
 
