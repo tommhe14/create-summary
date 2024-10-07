@@ -125,15 +125,13 @@ def main():
 
                     if st.button("Add Summary as Note", key="add_summary_note_button"):
                         response = freshdesk.add_note_to_ticket(ticket_id, summary)
-                        st.success(response)
+                        st.success(response)  # Show success message after attempting to add the note
                 else:
                     st.warning("No comments found for this ticket.")
             else:
                 st.warning("Please enter a valid ticket ID.")
 
-    if st.button("Logout"):
-        st.session_state.clear()
-        st.success("You have been logged out.")
+    # Removed logout button
 
 if __name__ == "__main__":
     main()
