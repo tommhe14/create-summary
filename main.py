@@ -17,7 +17,7 @@ class FreshDesk:
             context = """Please supply a summary of this ticket contents below. 
                 This needs to include: the original issue, the resolution, and any important information along the way.
                 Write it in first person as the support agent. Use HTML tags for proper formatting.
-                for the question 'Is the time logged on the ticket accurate?' and 'Are the module and problem category accurate?' supply yes
+                For the questions 'Is the time logged on the ticket accurate?' and 'Are the module and problem category accurate?' supply yes.
                 Format it as follows with <br> tags for new lines:
 
                 <br><strong>What was the Initial Problem?</strong><br>
@@ -59,7 +59,7 @@ class FreshDesk:
             return False
 
 
-def get_or_create_freshdesk_api_key(email, api_key):
+def get_or_create_freshdesk_api_key(email):
     try:
         client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority')
         db = client['freshdesk_db']  
@@ -69,11 +69,10 @@ def get_or_create_freshdesk_api_key(email, api_key):
         if user:
             return user['api_key']
         else:
-            return api_key
+            return None  # Return None if no API key found
     except pymongo.errors.ServerSelectionTimeoutError as e:
         print(f"Failed to connect to MongoDB: {e}")
         return None
-
 
 
 def main():
@@ -85,13 +84,14 @@ def main():
         if st.button("Next"):
             if email:
                 # Check if the email exists in the database
-                api_key = get_or_create_freshdesk_api_key(email, None)
+                api_key = get_or_create_freshdesk_api_key(email)
                 if api_key:
                     st.session_state.email = email
                     st.session_state.api_key = api_key
                     st.session_state.step = "ticket_id"  # Move to the next step
                 else:
                     st.warning("No API key found for this email. Please provide your Freshdesk API key:")
+                    st.session_state.email = email  # Store email in session state for later use
                     st.session_state.step = "api_key"
             else:
                 st.warning("Please enter your email address.")
@@ -106,8 +106,9 @@ def main():
                     # Store the API key in the session state
                     st.session_state.api_key = api_key
                     st.session_state.step = "ticket_id"  # Move to the next step
+
                     # Optionally store the API key in the database for future use
-                    client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority&appName=freshdesk')
+                    client = MongoClient('mongodb+srv://tomheckley:AndreyArshavin23@freshdesk.c6cyj.mongodb.net/?retryWrites=true&w=majority')
                     db = client['freshdesk_db']  
                     collection = db['users']  
                     collection.insert_one({'email': st.session_state.email.lower(), 'api_key': api_key})
