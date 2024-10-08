@@ -75,7 +75,7 @@ class FreshDesk:
             prompt = f"{context} {' '.join(comments_list)}"
             response = self.model.generate_content(prompt)
 
-            if "429" in response.text and "Resource" in response.text:
+            if "429" in response.text.lower() and "resource has been exhausted" in response.text.lower():
                 return False
         
             return response.text.replace('\n', '<br>') 
@@ -178,13 +178,14 @@ def main():
                 comments = freshdesk.get_ticket_comments(ticket_id)
 
                 if comments:
-                    summary = freshdesk.ask_google_ai(comments)
-                    if summary is False:
-                        st.session_state.tecket_id = None
-                        return st.error("Sorry! The ticket is too long to create a summary for, please try a different ticket.")
+                    with st.spinner("Generating ticket summary..."):
+                        summary = freshdesk.ask_google_ai(comments)
+                        if summary is False:
+                            st.session_state.tecket_id = None
+                            return st.error("Sorry! The ticket is too long to create a summary for, please try a different ticket.")
 
-                    st.session_state.summary = summary
-                    st.markdown(f"### Generated Summary:\n{summary}", unsafe_allow_html=True)
+                        st.session_state.summary = summary
+                        st.markdown(f"### Generated Summary:\n{summary}", unsafe_allow_html=True)
                 else:
                     st.warning("No comments found for this ticket.")
             else:
