@@ -77,8 +77,9 @@ class FreshDesk:
 
             if "429" in response.text.lower() and "resource has been exhausted" in response.text.lower():
                 return False
+            r = response.text.replace('\n', '<br>') 
         
-            return response.text.replace('\n', '<br>') + response
+            return f"{r} {response}" 
         except Exception as e:
             return f"Error occurred while processing the request: {e}"
 
