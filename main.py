@@ -181,7 +181,7 @@ def main():
                     with st.spinner("Generating ticket summary..."):
                         summary = freshdesk.ask_google_ai(comments)
                         if summary is False:
-                            st.session_state.tecket_id = None
+                            st.session_state.ticket_id = None
                             return st.error("Sorry! The ticket is too long to create a summary for, please try a different ticket.")
 
                         st.session_state.summary = summary
