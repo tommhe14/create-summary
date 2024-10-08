@@ -151,7 +151,8 @@ def main():
                     st.session_state.api_key = api_key
                     api_keys[st.session_state.email.lower()] = api_key
                     write_api_keys(api_keys)
-                    if st.session_state.email.lower() in freshdesk.agents:
+
+                    if st.session_state.email.lower() in (agent.lower() for agent in freshdesk.agents):
                         st.session_state.step = "ticket_id"
                         st.success("API Key Verified.")
                     else:
@@ -182,6 +183,7 @@ def main():
                 freshdesk = FreshDesk(st.session_state.api_key)
                 response = freshdesk.add_note_to_ticket(ticket_id, st.session_state.summary)
                 st.success(response)
+
 
 if __name__ == "__main__":
     main()
