@@ -128,6 +128,8 @@ def main():
             if email:
                 if "streets-heaver.com" not in email.lower():
                     return st.error("Please use your work email associated with your Freshdesk account.")
+                
+                st.success("Email address verified.")
 
                 email_lower = email.lower()
 
