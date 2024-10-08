@@ -19,15 +19,27 @@ class FreshDesk:
         self.agents = self.load_agents()
 
     def load_agents(self):
-        if os.path.exists(AGENTS_FILE_PATH):
-            with open(AGENTS_FILE_PATH, 'r') as file:
+    if os.path.exists(AGENTS_FILE_PATH):
+        with open(AGENTS_FILE_PATH, 'r') as file:
+            try:
                 agents_data = json.load(file)
+                
+                if 'stored_date' not in agents_data or 'agents' not in agents_data:
+                    return self.fetch_and_store_agents()
+
                 stored_date = datetime.strptime(agents_data['stored_date'], '%Y-%m-%d')
+
                 if datetime.now() - stored_date > timedelta(days=7):
                     return self.fetch_and_store_agents()
+
                 return agents_data['agents']
-        else:
-            return self.fetch_and_store_agents()
+
+            except json.JSONDecodeError:
+                return self.fetch_and_store_agents()
+
+    else:
+        return self.fetch_and_store_agents()
+
 
     def fetch_and_store_agents(self):
         try:
