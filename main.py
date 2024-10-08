@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 JSON_FILE_PATH = 'api_keys.json'
 AGENTS_FILE_PATH = 'agents_data.json'
 
+
 class FreshDesk:
     def __init__(self, api_key):
         self.api_link = API('streetsheaver-help.freshdesk.com', api_key)
