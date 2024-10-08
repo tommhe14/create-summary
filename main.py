@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 JSON_FILE_PATH = 'api_keys.json'
 AGENTS_FILE_PATH = 'agents_data.json'
 
-
 class FreshDesk:
     def __init__(self, api_key):
         self.api_link = API('streetsheaver-help.freshdesk.com', api_key)
@@ -21,25 +20,13 @@ class FreshDesk:
     def load_agents(self):
         if os.path.exists(AGENTS_FILE_PATH):
             with open(AGENTS_FILE_PATH, 'r') as file:
-                try:
-                    agents_data = json.load(file)
-                    
-                    if 'stored_date' not in agents_data or 'agents' not in agents_data:
-                        return self.fetch_and_store_agents()
-    
-                    stored_date = datetime.strptime(agents_data['stored_date'], '%Y-%m-%d')
-    
-                    if datetime.now() - stored_date > timedelta(days=7):
-                        return self.fetch_and_store_agents()
-    
-                    return agents_data['agents']
-    
-                except json.JSONDecodeError:
+                agents_data = json.load(file)
+                stored_date = datetime.strptime(agents_data['stored_date'], '%Y-%m-%d')
+                if datetime.now() - stored_date > timedelta(days=7):
                     return self.fetch_and_store_agents()
-    
+                return agents_data['agents']
         else:
             return self.fetch_and_store_agents()
-
 
     def fetch_and_store_agents(self):
         try:
@@ -58,7 +45,19 @@ class FreshDesk:
 
     def ask_google_ai(self, comments_list):
         try:
-            context = """Please supply a summary of this ticket contents below..."""
+            context = """Please supply a summary of this ticket contents below. 
+                This needs to include: the original issue, the resolution, and any important information along the way.
+                Write it in first person as the support agent. Use HTML tags for proper formatting.
+                For the questions 'Is the time logged on the ticket accurate?' and 'Are the module and problem category accurate?' supply yes.
+                Format it as follows with <br> tags for new lines:
+
+                <br><strong>What was the Initial Problem?</strong><br>
+                <br><strong>What was the Solution?</strong><br>
+                <br><strong>Were there any knowledge base articles that you found helpful (please link below)?</strong><br>
+                <br><strong>Are the module and problem category accurate?</strong><br>
+                <br><strong>Is the time logged on the ticket accurate?</strong><br>
+                """
+
             prompt = f"{context} {' '.join(comments_list)}"
             response = self.model.generate_content(prompt)
             return response.text.replace('\n', '<br>')
