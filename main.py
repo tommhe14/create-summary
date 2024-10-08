@@ -153,7 +153,7 @@ def main():
                     write_api_keys(api_keys)
                     if st.session_state.email.lower() in freshdesk.agents:
                         st.session_state.step = "ticket_id"
-                        st.success(freshdesk.test_api_key())
+                        st.success("API Key Verified.")
                     else:
                         st.error("Your email is not listed as an agent in Freshdesk.")
                 else:
