@@ -179,6 +179,8 @@ def main():
 
                 if comments:
                     with st.spinner("Generating ticket summary..."):
+                        import time
+                        time.sleep(1)
                         summary = freshdesk.ask_google_ai(comments)
                         if summary is False:
                             st.session_state.ticket_id = None
