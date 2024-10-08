@@ -159,6 +159,8 @@ def main():
                         st.error("Your email is not listed as an agent in Freshdesk.")
                 else:
                     st.error("Invalid API key. Please try again.")
+                    if st.session_state.email.lower() not in (agent.lower() for agent in freshdesk.agents):
+                        st.error("Your email is not listed as an agent in Freshdesk.")
             else:
                 st.warning("Please enter your Freshdesk API key.")
 
