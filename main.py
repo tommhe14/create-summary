@@ -74,7 +74,7 @@ class FreshDesk:
 
             prompt = f"{context} {' '.join(comments_list)}"
             response = self.model.generate_content(prompt)
-
+            print(response)
             if "429" in response.text.lower() and "resource has been exhausted" in response.text.lower():
                 return False
         
