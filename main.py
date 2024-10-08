@@ -74,11 +74,11 @@ class FreshDesk:
 
             prompt = f"{context} {' '.join(comments_list)}"
             response = self.model.generate_content(prompt)
-            print(response)
+
             if "429" in response.text.lower() and "resource has been exhausted" in response.text.lower():
                 return False
         
-            return response.text.replace('\n', '<br>') 
+            return response.text.replace('\n', '<br>') + response
         except Exception as e:
             return f"Error occurred while processing the request: {e}"
 
@@ -179,8 +179,6 @@ def main():
 
                 if comments:
                     with st.spinner("Generating ticket summary..."):
-                        import time
-                        time.sleep(1)
                         summary = freshdesk.ask_google_ai(comments)
                         if summary is False:
                             st.session_state.ticket_id = None
