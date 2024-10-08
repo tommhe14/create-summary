@@ -77,9 +77,8 @@ class FreshDesk:
 
             if "429" in response.text.lower() and "resource has been exhausted" in response.text.lower():
                 return False
-            r = response.text.replace('\n', '<br>') 
         
-            return f"{r} {response}" 
+            return response.text.replace('\n', '<br>') 
         except Exception as e:
             return f"Error occurred while processing the request: {e}"
 
@@ -181,7 +180,7 @@ def main():
                 if comments:
                     with st.spinner("Generating ticket summary..."):
                         summary = freshdesk.ask_google_ai(comments)
-                        if summary is False:
+                        if summary is False or "429" in summary.split(" "):
                             st.session_state.ticket_id = None
                             return st.error("Sorry! The ticket is too long to create a summary for, please try a different ticket.")
 
