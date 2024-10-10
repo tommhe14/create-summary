@@ -13,7 +13,7 @@ AGENTS_FILE_PATH = 'agents_data.json'
 class FreshDesk:
     def __init__(self, api_key):
         self.api_link = API('streetsheaver-help.freshdesk.com', api_key)
-        genai.configure(api_key=os.environ["api_key"])
+        genai.configure(api_key=os.environ["API_KEY"])
         self.model = genai.GenerativeModel("models/gemini-1.5-pro-latest")
         self.agents = self.load_agents()
 
